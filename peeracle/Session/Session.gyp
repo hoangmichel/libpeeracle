@@ -21,26 +21,39 @@
 
 {
   'includes': [
-    '../build/common.gypi'
+    '../../build/common.gypi',
+    '../../third_party/webrtc/webrtc/build/common.gypi'
   ],
   'targets': [
     {
-      'target_name': 'peeracle',
+      'target_name': 'peeracle_session',
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
-        'DataStream/DataStream.gyp:*',
-        'Hash/Hash.gyp:*',
-        'Media/Media.gyp:*',
-        'Metadata/Metadata.gyp:*',
-        'Peer/Peer.gyp:*',
-        'Session/Session.gyp:*',
-        'Tracker/Tracker.gyp:*',
-        'Utils/Utils.gyp:*',
+        '<(peeracle_webrtc_root)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'sources': [
-        'peeracle.cc',
-      ],
+        'SessionInterface.h',
+        'Session.cc',
+        'Session.h',
+      ]
     },
+  ],
+  'conditions': [
+    ['build_tests == 1', {
+      'targets': [
+        {
+          'target_name': 'peeracle_session_unittest',
+          'type': 'executable',
+          'dependencies': [
+            'peeracle_session',
+            '<(DEPTH)/test/test.gyp:peeracle_tests_utils',
+          ],
+          'sources': [
+            'Session_unittest.cc',
+          ],
+        },
+      ],
+    }],
   ],
 }

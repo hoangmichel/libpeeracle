@@ -20,50 +20,25 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_METADATA_METADATA_H_
-#define PEERACLE_METADATA_METADATA_H_
-
-#include <string>
-#include <vector>
-#include "peeracle/Metadata/MetadataInterface.h"
+#include "third_party/webrtc/talk/app/webrtc/test/fakeconstraints.h"
+#include "third_party/webrtc/talk/app/webrtc/peerconnectioninterface.h"
+#include "peeracle/Peer/Peer.h"
 
 namespace peeracle {
 
-class Metadata : public MetadataInterface {
- public:
-  Metadata();
+Peer::Peer() {
+  webrtc::PeerConnectionInterface::IceServers iceServers;
+  webrtc::PeerConnectionInterface::IceServer iceServer;
+  iceServer.uri = "stun:stun.l.google.com:19302";
+  iceServers.push_back(iceServer);
 
-  uint32_t getMagic();
-  uint32_t getVersion();
-  const std::string &getHashAlgorithm();
-  uint32_t getTimecodeScale();
-  double getDuration();
-  std::vector<std::string> &getTrackers();
-  std::vector<MetadataStreamInterface *> &getStreams();
-
-  void setHashAlgorithm(const std::string &hashAlgorithm);
-  void setTimecodeScale(uint32_t timecodeScale);
-  void setDuration(double duration);
-  void addTracker(const std::string &tracker);
-
-  bool serialize(DataStreamInterface *dataStream);
-  bool unserialize(DataStreamInterface *dataStream);
-
- private:
-  uint32_t _magic;
-  uint32_t _version;
-  std::string _hashAlgorithm;
-  uint32_t _timeCodeScale;
-  double _duration;
-  uint32_t _trackersNumber;
-  std::string _trackersAddress;
-  uint32_t _streamsNumber;
-
-  std::string _empty;
-  std::vector<std::string> _trackers;
-  std::vector<MetadataStreamInterface *> _streams;
-};
+  webrtc::FakeConstraints constr;
+  constr.AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp,
+                     webrtc::MediaConstraintsInterface::kValueTrue);
+  constr.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio,
+                      webrtc::MediaConstraintsInterface::kValueFalse);
+  constr.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo,
+                      webrtc::MediaConstraintsInterface::kValueFalse);
+}
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_METADATA_METADATA_H_
