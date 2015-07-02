@@ -30,12 +30,21 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
-        '<(peeracle_webrtc_root)/talk/libjingle.gyp:libjingle_peerconnection',
+        '<(webrtc_depot_dir)/talk/libjingle.gyp:libjingle_peerconnection',
+      ],
+      'defines': [
+        'BUILD_LIBPEERACLE',
       ],
       'sources': [
+        'CreateSDPObserver.cc',
+        'DataChannelObserver.cc',
+        'Observer.cc',
         'PeerInterface.h',
         'Peer.cc',
         'Peer.h',
+        'PeerImpl.h',
+        'SetLocalSDPObserver.cc',
+        'SetRemoteSDPObserver.cc',
       ]
     },
   ],
@@ -48,6 +57,9 @@
           'dependencies': [
             'peeracle_peer',
             '<(DEPTH)/test/test.gyp:peeracle_tests_utils',
+          ],
+          'defines': [
+            'BUILD_LIBPEERACLE',
           ],
           'sources': [
             'Peer_unittest.cc',

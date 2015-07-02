@@ -20,25 +20,193 @@
  * SOFTWARE.
  */
 
+#include <string>
+#include <iostream>
+
+#include "third_party/webrtc/webrtc/p2p/base/candidate.h"
+#include "third_party/webrtc/webrtc/base/thread.h"
 #include "third_party/webrtc/talk/app/webrtc/test/fakeconstraints.h"
 #include "third_party/webrtc/talk/app/webrtc/peerconnectioninterface.h"
 #include "peeracle/Peer/Peer.h"
+#include "peeracle/Peer/PeerImpl.h"
+#include "peeracle/peeracle.h"
 
 namespace peeracle {
 
-Peer::Peer() {
+Peer::Peer(PeerInterface::Observer *observer) :
+  _peer(new Peer::PeerImpl(observer)) {
   webrtc::PeerConnectionInterface::IceServers iceServers;
-  webrtc::PeerConnectionInterface::IceServer iceServer;
-  iceServer.uri = "stun:stun.l.google.com:19302";
-  iceServers.push_back(iceServer);
+  webrtc::PeerConnectionInterface::IceServer amazonIceServer;
+  webrtc::PeerConnectionInterface::IceServer googleIceServer;
+  webrtc::PeerConnectionInterface::IceServer ekigaIceServer;
+  webrtc::PeerConnectionInterface::IceServer ideasipIceServer;
+  webrtc::PeerConnectionInterface::IceServer rixtelecomIceServer;
+  webrtc::PeerConnectionInterface::IceServer schlundIceServer;
+  webrtc::PeerConnectionInterface::IceServer stunprotocolIceServer;
+  webrtc::PeerConnectionInterface::IceServer voiparoundIceServer;
+  webrtc::PeerConnectionInterface::IceServer voipbusterIceServer;
+  webrtc::PeerConnectionInterface::IceServer voipstuntIceServer;
+  webrtc::PeerConnectionInterface::IceServer voipgratiaIceServer;
 
-  webrtc::FakeConstraints constr;
-  constr.AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp,
-                     webrtc::MediaConstraintsInterface::kValueTrue);
-  constr.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio,
-                      webrtc::MediaConstraintsInterface::kValueFalse);
-  constr.AddMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo,
-                      webrtc::MediaConstraintsInterface::kValueFalse);
+  amazonIceServer.uri = "stun:23.21.150.121";
+  googleIceServer.uri = "stun:stun.l.google.com:19302";
+  ekigaIceServer.uri = "stun:stun.ekiga.net";
+  ideasipIceServer.uri = "stun:stun.ideasip.com";
+  rixtelecomIceServer.uri = "stun:stun.rixtelecom.se";
+  schlundIceServer.uri = "stun:stun.schlund.de";
+  stunprotocolIceServer.uri = "stun:stun.stunprotocol.org:3478";
+  voiparoundIceServer.uri = "stun:stun.voiparound.com";
+  voipbusterIceServer.uri = "stun:stun.voipbuster.com";
+  voipstuntIceServer.uri = "stun:stun.voipstunt.com";
+  voipgratiaIceServer.uri = "stun:stun.voxgratia.org";
+
+  amazonIceServer.urls.push_back("stun:23.21.150.121");
+  googleIceServer.urls.push_back("stun:stun.l.google.com:19302");
+  googleIceServer.urls.push_back("stun:stun1.l.google.com:19302");
+  googleIceServer.urls.push_back("stun:stun2.l.google.com:19302");
+  googleIceServer.urls.push_back("stun:stun3.l.google.com:19302");
+  googleIceServer.urls.push_back("stun:stun4.l.google.com:19302");
+  ekigaIceServer.urls.push_back("stun:stun.ekiga.net");
+  ideasipIceServer.urls.push_back("stun:stun.ideasip.com");
+  rixtelecomIceServer.urls.push_back("stun:stun.rixtelecom.se");
+  schlundIceServer.urls.push_back("stun:stun.schlund.de");
+  stunprotocolIceServer.urls.push_back("stun:stun.stunprotocol.org:3478");
+  voiparoundIceServer.urls.push_back("stun:stun.voiparound.com");
+  voipbusterIceServer.urls.push_back("stun:stun.voipbuster.com");
+  voipstuntIceServer.urls.push_back("stun:stun.voipstunt.com");
+  voipgratiaIceServer.urls.push_back("stun:stun.voxgratia.org");
+
+  iceServers.push_back(amazonIceServer);
+  iceServers.push_back(googleIceServer);
+  iceServers.push_back(ekigaIceServer);
+  iceServers.push_back(ideasipIceServer);
+  iceServers.push_back(rixtelecomIceServer);
+  iceServers.push_back(schlundIceServer);
+  iceServers.push_back(stunprotocolIceServer);
+  iceServers.push_back(voiparoundIceServer);
+  iceServers.push_back(voipbusterIceServer);
+  iceServers.push_back(voipstuntIceServer);
+  iceServers.push_back(voipgratiaIceServer);
+
+  _peer->_peerConnection = peeracle::getPeerConnectionFactory()->
+    CreatePeerConnection(iceServers, &this->_peer->_mediaConstraints,
+                         NULL, NULL, _peer);
+}
+
+Peer::~Peer() {
+  _peer->_peerConnection = NULL;
+  _peer->_dataChannel = NULL;
+  if (_peer->_dataChannelObserver) {
+    delete _peer->_dataChannelObserver;
+  }
+  delete _peer;
+}
+
+void Peer::CreateOffer(PeerInterface::CreateSDPObserver
+                       *createSDPObserver) {
+  webrtc::DataChannelInit init;
+  rtc::scoped_refptr<Peer::PeerImpl::CreateSDPObserver>
+    createOfferObserver =
+    new rtc::RefCountedObject<Peer::PeerImpl::CreateSDPObserver>
+      (_peer->_peerConnection, createSDPObserver);
+
+  init.reliable = true;
+  _peer->_dataChannel =
+    _peer->_peerConnection->CreateDataChannel("signal", &init);
+  _peer->_dataChannelObserver = new PeerImpl::DataChannelObserver
+    (_peer->_dataChannel);
+  _peer->_dataChannel->RegisterObserver(_peer->_dataChannelObserver);
+
+  _peer->_peerConnection->CreateOffer(createOfferObserver,
+                                      &_peer->_mediaConstraints);
+}
+
+void Peer::CreateAnswer(const std::string &sdp,
+                        PeerInterface::CreateSDPObserver *createSDPObserver) {
+  webrtc::SessionDescriptionInterface *desc;
+  rtc::scoped_refptr<Peer::PeerImpl::SetRemoteSDPAndCreateAnswerObserver>
+    setOfferObserver =
+    new rtc::RefCountedObject
+      <Peer::PeerImpl::SetRemoteSDPAndCreateAnswerObserver>
+      (_peer->_peerConnection, &_peer->_mediaConstraints, createSDPObserver);
+
+  desc = webrtc::CreateSessionDescription("offer", sdp);
+  if (!desc) {
+    return;
+  }
+
+  _peer->_peerConnection->SetRemoteDescription(setOfferObserver, desc);
+}
+
+void Peer::SetAnswer(const std::string &sdp,
+                     PeerInterface::SetSDPObserver *setSDPObserver) {
+  webrtc::SessionDescriptionInterface *desc =
+    webrtc::CreateSessionDescription("answer", sdp);
+
+  if (!desc) {
+    return;
+  }
+
+  rtc::scoped_refptr<Peer::PeerImpl::SetRemoteSDPObserver>
+    setAnswerObserver =
+    new rtc::RefCountedObject<Peer::PeerImpl::SetRemoteSDPObserver>
+      (setSDPObserver);
+
+  _peer->_peerConnection->SetRemoteDescription(setAnswerObserver, desc);
+}
+
+void Peer::AddICECandidate(const std::string &sdpMid,
+                           int sdpMLineIndex,
+                           const std::string &candidate) {
+  rtc::scoped_ptr<webrtc::IceCandidateInterface> iceCandidate(
+    webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate,
+                               NULL));
+
+  if (!iceCandidate) {
+    return;
+  }
+
+  _peer->_peerConnection->AddIceCandidate(iceCandidate.get());
+}
+
+Peer::PeerImpl::PeerImpl(PeerInterface::Observer *observer) :
+  _observer(observer) {
+  this->_mediaConstraints.AddOptional(
+    webrtc::MediaConstraintsInterface::kEnableDtlsSrtp,
+    webrtc::MediaConstraintsInterface::kValueTrue);
+  this->_mediaConstraints.AddMandatory(
+    webrtc::MediaConstraintsInterface::kOfferToReceiveAudio,
+    webrtc::MediaConstraintsInterface::kValueFalse);
+  this->_mediaConstraints.AddMandatory(
+    webrtc::MediaConstraintsInterface::kOfferToReceiveVideo,
+    webrtc::MediaConstraintsInterface::kValueFalse);
+}
+
+Peer::PeerImpl::~PeerImpl() {
+}
+
+Peer::PeerImpl::SetRemoteSDPAndCreateAnswerObserver::
+  SetRemoteSDPAndCreateAnswerObserver(
+  webrtc::PeerConnectionInterface *peerConnection,
+  webrtc::MediaConstraintsInterface *mediaConstraints,
+  PeerInterface::CreateSDPObserver *createSDPObserver) :
+  _peerConnection(peerConnection),
+  _mediaConstraints(mediaConstraints),
+  _createSDPObserver(createSDPObserver) {
+}
+
+void Peer::PeerImpl::SetRemoteSDPAndCreateAnswerObserver::OnSuccess() {
+  rtc::scoped_refptr<Peer::PeerImpl::CreateSDPObserver>
+    createOfferObserver =
+    new rtc::RefCountedObject<Peer::PeerImpl::CreateSDPObserver>
+      (_peerConnection, _createSDPObserver);
+
+  _peerConnection->CreateAnswer(createOfferObserver, _mediaConstraints);
+}
+
+void Peer::PeerImpl::SetRemoteSDPAndCreateAnswerObserver::OnFailure(
+  const std::string &error) {
+  _createSDPObserver->onFailure(error);
 }
 
 }  // namespace peeracle

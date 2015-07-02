@@ -20,51 +20,49 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEERINTERFACE_H_
-#define PEERACLE_PEER_PEERINTERFACE_H_
-
-#include <string>
+#include "peeracle/Hash/Murmur3Hash.h"
+#include "third_party/murmur3/murmur3.h"
 
 namespace peeracle {
 
-class PeerInterface {
- public:
-  class Observer {
-   public:
-    virtual void onIceCandidate(const std::string &sdpMid,
-                                int sdpMLineIndex,
-                                const std::string &candidate) = 0;
-    virtual void onSignalingChange(int state) = 0;
-    virtual void onStateChange(int state) = 0;
-    virtual void onIceConnectionChange(int state) = 0;
-    virtual void onIceGatheringChange(int state) = 0;
+namespace Hash {
 
-   protected:
-    ~Observer() {}
-  };
+Murmur3Hash::Murmur3Hash() {
+  DataStreamInit init;
 
-  class CreateSDPObserver {
-   public:
-    virtual void onSuccess(const std::string &sdp,
-                           const std::string &type) = 0;
-    virtual void onFailure(const std::string &error) = 0;
+  this->_dataStream = new MemoryDataStream(init);
+}
 
-   protected:
-    ~CreateSDPObserver() {}
-  };
+Murmur3Hash::~Murmur3Hash() {
+  delete this->_dataStream;
+}
 
-  class SetSDPObserver {
-   public:
-    virtual void onSuccess() = 0;
-    virtual void onFailure(const std::string &error) = 0;
+void Murmur3Hash::init() {
+}
 
-   protected:
-    ~SetSDPObserver() {}
-  };
+void Murmur3Hash::update(DataStreamInterface *dataStream) {
+  char *buffer = new char[dataStream->length()];
 
-  virtual ~PeerInterface() {}
-};
+  dataStream->read(buffer, dataStream->length());
+  this->_dataStream->write(buffer, dataStream->length());
+  delete buffer;
+}
+
+void Murmur3Hash::final(uint8_t *result) {
+  const std::streamsize length = this->_dataStream->length();
+  char *buffer = new char[length];
+
+  this->_dataStream->seek(0);
+  this->_dataStream->read(buffer, length);
+  MurmurHash3_x64_128(buffer, static_cast<int>(length), 0x5052434C, result);
+  delete buffer;
+}
+
+void Murmur3Hash::checksum(DataStreamInterface *dataStream, uint8_t *result) {
+  this->update(dataStream);
+  this->final(result);
+}
+
+}  // namespace Hash
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_PEER_PEERINTERFACE_H_

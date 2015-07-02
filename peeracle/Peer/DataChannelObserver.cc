@@ -20,51 +20,37 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEERINTERFACE_H_
-#define PEERACLE_PEER_PEERINTERFACE_H_
-
-#include <string>
+#include <iostream>
+#include "peeracle/Peer/Peer.h"
+#include "peeracle/Peer/PeerImpl.h"
 
 namespace peeracle {
 
-class PeerInterface {
- public:
-  class Observer {
-   public:
-    virtual void onIceCandidate(const std::string &sdpMid,
-                                int sdpMLineIndex,
-                                const std::string &candidate) = 0;
-    virtual void onSignalingChange(int state) = 0;
-    virtual void onStateChange(int state) = 0;
-    virtual void onIceConnectionChange(int state) = 0;
-    virtual void onIceGatheringChange(int state) = 0;
+Peer::PeerImpl::DataChannelObserver::DataChannelObserver(
+  webrtc::DataChannelInterface *dataChannel) : _dataChannel(dataChannel) {
+}
 
-   protected:
-    ~Observer() {}
-  };
+void Peer::PeerImpl::DataChannelObserver::OnStateChange() {
+  std::cout << "DataChannelObserver::OnStateChange " <<
+  this->_dataChannel->state() << std::endl;
 
-  class CreateSDPObserver {
-   public:
-    virtual void onSuccess(const std::string &sdp,
-                           const std::string &type) = 0;
-    virtual void onFailure(const std::string &error) = 0;
+  if (this->_dataChannel->state() == webrtc::DataChannelInterface::kOpen) {
+    uint8_t data[] = {0, 16, 32, 64};
+    rtc::Buffer buffer(data, sizeof(data));
+    webrtc::DataBuffer dataBuffer(buffer, true);
 
-   protected:
-    ~CreateSDPObserver() {}
-  };
+    std::cout << "SEND MSG NOW" << std::endl;
+    this->_dataChannel->Send(dataBuffer);
+  }
+}
 
-  class SetSDPObserver {
-   public:
-    virtual void onSuccess() = 0;
-    virtual void onFailure(const std::string &error) = 0;
-
-   protected:
-    ~SetSDPObserver() {}
-  };
-
-  virtual ~PeerInterface() {}
-};
+void Peer::PeerImpl::DataChannelObserver::OnMessage(
+  const webrtc::DataBuffer& buffer) {
+  std::cout << "GOT MSG!!!" << std::endl;
+  std::cout << "size = " << buffer.size() << std::endl;
+  for (size_t i = 0; i < buffer.size(); ++i) {
+    printf("data[%zu] = %d\n", i, buffer.data.data()[i]);
+  }
+}
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_PEER_PEERINTERFACE_H_

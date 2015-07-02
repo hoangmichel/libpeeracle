@@ -20,51 +20,31 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEERINTERFACE_H_
-#define PEERACLE_PEER_PEERINTERFACE_H_
-
-#include <string>
+#include "peeracle/Peer/Peer.h"
+#include "peeracle/Peer/PeerImpl.h"
 
 namespace peeracle {
 
-class PeerInterface {
- public:
-  class Observer {
-   public:
-    virtual void onIceCandidate(const std::string &sdpMid,
-                                int sdpMLineIndex,
-                                const std::string &candidate) = 0;
-    virtual void onSignalingChange(int state) = 0;
-    virtual void onStateChange(int state) = 0;
-    virtual void onIceConnectionChange(int state) = 0;
-    virtual void onIceGatheringChange(int state) = 0;
+Peer::PeerImpl::CreateSDPObserver::CreateSDPObserver(
+  webrtc::PeerConnectionInterface *peerConnection,
+  PeerInterface::CreateSDPObserver *createSDPObserver) :
+  _peerConnection(peerConnection),
+  _createSDPObserver(createSDPObserver) {
+}
 
-   protected:
-    ~Observer() {}
-  };
+void Peer::PeerImpl::CreateSDPObserver::OnSuccess(
+  webrtc::SessionDescriptionInterface *desc) {
+  rtc::scoped_refptr <Peer::PeerImpl::SetLocalSDPObserver>
+    setLocalSDPObserver =
+    new rtc::RefCountedObject<Peer::PeerImpl::SetLocalSDPObserver>
+      (desc, _createSDPObserver);
 
-  class CreateSDPObserver {
-   public:
-    virtual void onSuccess(const std::string &sdp,
-                           const std::string &type) = 0;
-    virtual void onFailure(const std::string &error) = 0;
+  _peerConnection->SetLocalDescription(setLocalSDPObserver, desc);
+}
 
-   protected:
-    ~CreateSDPObserver() {}
-  };
-
-  class SetSDPObserver {
-   public:
-    virtual void onSuccess() = 0;
-    virtual void onFailure(const std::string &error) = 0;
-
-   protected:
-    ~SetSDPObserver() {}
-  };
-
-  virtual ~PeerInterface() {}
-};
+void Peer::PeerImpl::CreateSDPObserver::OnFailure(
+  const std::string &error) {
+  _createSDPObserver->onFailure(error);
+}
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_PEER_PEERINTERFACE_H_

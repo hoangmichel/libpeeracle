@@ -20,51 +20,36 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEERINTERFACE_H_
-#define PEERACLE_PEER_PEERINTERFACE_H_
-
-#include <string>
+#include "third_party/googletest/gtest/include/gtest/gtest.h"
+#include "peeracle/Hash/Murmur3Hash.h"
 
 namespace peeracle {
 
-class PeerInterface {
- public:
-  class Observer {
-   public:
-    virtual void onIceCandidate(const std::string &sdpMid,
-                                int sdpMLineIndex,
-                                const std::string &candidate) = 0;
-    virtual void onSignalingChange(int state) = 0;
-    virtual void onStateChange(int state) = 0;
-    virtual void onIceConnectionChange(int state) = 0;
-    virtual void onIceGatheringChange(int state) = 0;
+namespace Hash {
 
-   protected:
-    ~Observer() {}
-  };
+class Murmur3HashTest : public testing::Test {
+ protected:
+  virtual void SetUp() {
+    hash_ = new Murmur3Hash();
+  }
 
-  class CreateSDPObserver {
-   public:
-    virtual void onSuccess(const std::string &sdp,
-                           const std::string &type) = 0;
-    virtual void onFailure(const std::string &error) = 0;
+  virtual void TearDown() {
+    delete hash_;
+  }
 
-   protected:
-    ~CreateSDPObserver() {}
-  };
-
-  class SetSDPObserver {
-   public:
-    virtual void onSuccess() = 0;
-    virtual void onFailure(const std::string &error) = 0;
-
-   protected:
-    ~SetSDPObserver() {}
-  };
-
-  virtual ~PeerInterface() {}
+  Murmur3Hash *hash_;
 };
 
-}  // namespace peeracle
+TEST_F(Murmur3HashTest, SimpleHash) {
+  DataStreamInit init;
+  MemoryDataStream *ds = new MemoryDataStream(init);
+  uint8_t result[16];
 
-#endif  // PEERACLE_PEER_PEERINTERFACE_H_
+  ds->write("hello everyone");
+  ds->seek(0);
+  hash_->checksum(ds, result);
+}
+
+}  // namespace Hash
+
+}  // namespace peeracle

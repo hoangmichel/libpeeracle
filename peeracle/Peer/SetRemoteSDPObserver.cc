@@ -20,51 +20,24 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEERINTERFACE_H_
-#define PEERACLE_PEER_PEERINTERFACE_H_
-
-#include <string>
+#include <iostream>
+#include "peeracle/Peer/Peer.h"
+#include "peeracle/Peer/PeerImpl.h"
 
 namespace peeracle {
 
-class PeerInterface {
- public:
-  class Observer {
-   public:
-    virtual void onIceCandidate(const std::string &sdpMid,
-                                int sdpMLineIndex,
-                                const std::string &candidate) = 0;
-    virtual void onSignalingChange(int state) = 0;
-    virtual void onStateChange(int state) = 0;
-    virtual void onIceConnectionChange(int state) = 0;
-    virtual void onIceGatheringChange(int state) = 0;
+Peer::PeerImpl::SetRemoteSDPObserver::SetRemoteSDPObserver(
+  PeerInterface::SetSDPObserver *setSDPObserver) :
+  _setSDPObserver(setSDPObserver) {
+}
 
-   protected:
-    ~Observer() {}
-  };
+void Peer::PeerImpl::SetRemoteSDPObserver::OnSuccess() {
+  _setSDPObserver->onSuccess();
+}
 
-  class CreateSDPObserver {
-   public:
-    virtual void onSuccess(const std::string &sdp,
-                           const std::string &type) = 0;
-    virtual void onFailure(const std::string &error) = 0;
-
-   protected:
-    ~CreateSDPObserver() {}
-  };
-
-  class SetSDPObserver {
-   public:
-    virtual void onSuccess() = 0;
-    virtual void onFailure(const std::string &error) = 0;
-
-   protected:
-    ~SetSDPObserver() {}
-  };
-
-  virtual ~PeerInterface() {}
-};
+void Peer::PeerImpl::SetRemoteSDPObserver::OnFailure(
+  const std::string &error) {
+  _setSDPObserver->onFailure(error);
+}
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_PEER_PEERINTERFACE_H_

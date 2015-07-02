@@ -20,8 +20,58 @@
  * SOFTWARE.
  */
 
-#include <cstdlib>
+#ifndef PEERACLE_HASH_MURMUR3HASH_H_
+#define PEERACLE_HASH_MURMUR3HASH_H_
 
-int main(int argc, char **argv) {
-  return EXIT_SUCCESS;
-}
+#include "peeracle/DataStream/MemoryDataStream.h"
+#include "HashInterface.h"
+
+/**
+ * \addtogroup peeracle
+ * @{
+ * @namespace peeracle
+ * @brief peeracle namespace
+ */
+namespace peeracle {
+
+/**
+ * \addtogroup Hash
+ * @{
+ * @namespace peeracle::Hash
+ * @brief Hash namespace
+ */
+namespace Hash {
+
+/**
+ * Murmur3Hash hash algorithm module.
+ */
+class Murmur3Hash
+  : public HashInterface {
+ public:
+  Murmur3Hash();
+  virtual ~Murmur3Hash();
+
+  /**
+   * Initialize the Murmur3 hash algorithm module.
+   */
+  void init();
+  void update(DataStreamInterface *dataStream);
+  void final(uint8_t *result);
+  void checksum(DataStreamInterface *dataStream, uint8_t *result);
+
+ private:
+  MemoryDataStream *_dataStream;
+};
+
+/**
+ * @}
+ */
+}  // namespace Hash
+
+/**
+ * @}
+ */
+}  // namespace peeracle
+
+
+#endif  // PEERACLE_HASH_MURMUR3HASH_H_

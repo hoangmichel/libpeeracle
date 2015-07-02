@@ -61,11 +61,6 @@ static int Open(vlc_object_t *p_obj) {
   const uint8_t *peek;
   int peek_size;
 
-  msg_Dbg(p_obj, "initializing peeracle");
-  if (peeracle::Init()) {
-    return VLC_EGENERIC;
-  }
-
   msg_Dbg(p_obj, "getting the four first bytes");
   peek_size = stream_Peek(stream, &peek, sizeof(prcl_magic));
   if (peek_size != sizeof(prcl_magic)) {

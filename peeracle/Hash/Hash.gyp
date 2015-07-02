@@ -28,10 +28,16 @@
       'target_name': 'peeracle_hash',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        '../DataStream/DataStream.gyp:peeracle_datastream',
+        '<(DEPTH)/third_party/murmur3/murmur3.gyp:murmur3',
+      ],
       'sources': [
         'HashInterface.h',
         'Crc32Hash.cc',
         'Crc32Hash.h',
+        'Murmur3Hash.cc',
+        'Murmur3Hash.h',
       ]
     },
   ],
@@ -47,6 +53,7 @@
           ],
           'sources': [
             'Crc32Hash_unittest.cc',
+            'Murmur3Hash_unittest.cc',
           ],
         },
       ],
