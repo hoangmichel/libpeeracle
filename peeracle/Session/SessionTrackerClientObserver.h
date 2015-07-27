@@ -20,42 +20,35 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEER_H_
-#define PEERACLE_PEER_PEER_H_
+#ifndef PEERACLE_SESSION_SESSIONTRACKERCLIENTOBSERVER_H_
+#define PEERACLE_SESSION_SESSIONTRACKERCLIENTOBSERVER_H_
 
 #include <string>
-#include "peeracle/Peer/PeerInterface.h"
+
+#include "peeracle/Session/SessionInterface.h"
 #include "peeracle/Tracker/Client/TrackerClientInterface.h"
+#include "peeracle/Tracker/Client/TrackerClientObserver.h"
 
 namespace peeracle {
 
-class Peer
-  : public PeerInterface {
+class SessionTrackerClientObserver
+  : public TrackerClientObserver {
  public:
-  explicit Peer(const std::string &id, TrackerClientInterface *tracker,
-                PeerInterface::Observer *observer);
-  ~Peer();
+  explicit SessionTrackerClientObserver(SessionInterface *session);
+  ~SessionTrackerClientObserver();
 
-  void CreateOffer(PeerInterface::CreateSDPObserver *createSDPObserver);
-  void CreateAnswer(const std::string &sdp,
-                    PeerInterface::CreateSDPObserver *createSDPObserver);
-  void SetAnswer(const std::string &sdp,
-                 PeerInterface::SetSDPObserver *setSDPObserver);
-  void AddICECandidate(const std::string &sdpMid,
-                       int sdpMLineIndex,
-                       const std::string &candidate);
-
-  const std::string &getId() const;
+  void onConnect(const std::string &id);
+  void onDisconnect();
+  void onConnectionError();
+  void onPeerConnect(const std::string &hash, const std::string &peerId,
+                     uint32_t got, bool poke);
+  void setTrackerClient(TrackerClientInterface *tracker);
 
  private:
-  class PeerImpl;
-  PeerImpl *_peer;
-
-  const std::string _id;
+  SessionInterface *_session;
   TrackerClientInterface *_tracker;
-  PeerInterface::Observer *_observer;
 };
 
 }  // namespace peeracle
 
-#endif  // PEERACLE_PEER_PEER_H_
+#endif  // PEERACLE_SESSION_SESSIONTRACKERCLIENTOBSERVER_H_

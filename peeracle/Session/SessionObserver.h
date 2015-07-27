@@ -20,26 +20,14 @@
  * SOFTWARE.
  */
 
-#include "third_party/googletest/gtest/include/gtest/gtest.h"
-#include "peeracle/Hash/Crc32Hash.h"
+#ifndef PEERACLE_SESSION_SESSIONOBSERVER_H_
+#define PEERACLE_SESSION_SESSIONOBSERVER_H_
 
 namespace peeracle {
 
-namespace Hash {
-
-class Crc32HashTest : public testing::Test {
- protected:
-  virtual void SetUp() {
-    hash_ = new Crc32Hash();
-  }
-
-  virtual void TearDown() {
-    delete hash_;
-  }
-
-  Crc32Hash *hash_;
+class SessionObserver {
 };
 
-}  // namespace Hash
-
 }  // namespace peeracle
+
+#endif  // PEERACLE_SESSION_SESSIONOBSERVER_H_

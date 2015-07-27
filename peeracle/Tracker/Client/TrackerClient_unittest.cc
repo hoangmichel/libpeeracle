@@ -28,7 +28,7 @@ namespace peeracle {
 class TrackerClientTest : public testing::Test {
  protected:
   virtual void SetUp() {
-    _client = new TrackerClient();
+    _client = new TrackerClient("ws://127.0.0.1:8080", NULL);
   }
 
   virtual void TearDown() {
@@ -46,7 +46,7 @@ TEST_F(TrackerClientTest, Connect) {
   EXPECT_TRUE(ret);
 
   std::cout << "conn" << std::endl;
-  ret = _client->Connect("127.0.0.1", 9900);
+  ret = _client->Connect();
   EXPECT_TRUE(ret);
 
   std::cout << "update" << std::endl;

@@ -30,12 +30,32 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [
-        '<(webrtc_depot_dir)/talk/libjingle.gyp:libjingle_peerconnection',
+        '../Peer/Peer.gyp:peeracle_peer',
+        '../Tracker/Client/TrackerClient.gyp:peeracle_tracker_client'
+      ],
+      'conditions': [
+        ['use_libwebsockets == 1', {
+          'defines': [
+            'USE_LIBWEBSOCKETS',
+          ],
+          'dependencies': [
+            '<(DEPTH)/third_party/libwebsockets/libwebsockets.gyp:*',
+          ],
+        }],
       ],
       'sources': [
         'SessionInterface.h',
         'Session.cc',
         'Session.h',
+        'SessionHandle.cc',
+        'SessionHandle.h',
+        'SessionHandleInterface.h',
+        'SessionHandleObserver.h',
+        'SessionObserver.h',
+        'SessionPeerObserver.cc',
+        'SessionPeerObserver.h',
+        'SessionTrackerClientObserver.cc',
+        'SessionTrackerClientObserver.h',
       ]
     },
   ],

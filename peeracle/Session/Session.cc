@@ -20,41 +20,80 @@
  * SOFTWARE.
  */
 
-#include "third_party/webrtc/talk/app/webrtc/peerconnectioninterface.h"
-#include "third_party/webrtc/webrtc/base/thread.h"
+#include <iostream>
+#include <map>
+#include <vector>
+#include <string>
+
+#include "peeracle/Peer/Peer.h"
+#include "peeracle/Tracker/Client/TrackerClient.h"
+
 #include "peeracle/Session/Session.h"
+#include "peeracle/Session/SessionHandle.h"
+#include "peeracle/Session/SessionPeerObserver.h"
+#include "peeracle/Session/SessionTrackerClientObserver.h"
 
 namespace peeracle {
 
-Session::Session() : _signalingThread(new rtc::Thread()),
-                     _workerThread(new rtc::Thread()),
-                     _pcfi(NULL) {
-  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> pcfi;
-
-  rtc::ThreadManager::Instance()->WrapCurrentThread();
-
-  _signalingThread.get()->SetName("signaling_thread", NULL);
-  _workerThread.get()->SetName("worker_thread", NULL);
-
-  ASSERT(_signalingThread.get()->Start() && _workerThread.get()->Start());
-
-  _pcfi = webrtc::CreatePeerConnectionFactory(_signalingThread.get(),
-                                              _workerThread.get(),
-                                              NULL, NULL, NULL);
+Session::Session(SessionObserver *observer) :
+  _observer(observer) {
 }
 
-bool Session::Update() {
-  rtc::Thread *thread = rtc::Thread::Current();
-
-  return thread->ProcessMessages(0);
+Session::~Session() {
 }
 
-void *Session::getSignalingThread() {
-  return _signalingThread.get();
+bool Session::update() {
+  for (std::map<std::string, TrackerClientInterface *>::iterator
+         it = _trackers.begin();
+       it != _trackers.end(); ++it) {
+    TrackerClientInterface *tracker = (*it).second;
+
+    tracker->Update();
+  }
+  return true;
 }
 
-void *Session::getWorkerThread() {
-  return _workerThread.get();
+SessionHandleInterface *Session::addMetadata(MetadataInterface *metadata,
+                                             SessionHandleObserver *observer) {
+  SessionHandleInterface *handle;
+  SessionTrackerClientObserver *trackerObserver;
+
+  if (_handles.find(metadata->getId()) != _handles.end()) {
+    return _handles[metadata->getId()];
+  }
+
+  handle = new SessionHandle(metadata, observer);
+  _handles[metadata->getId()] = handle;
+
+  std::vector<std::string> &trackers = metadata->getTrackerUrls();
+  for (std::vector<std::string>::iterator it = trackers.begin();
+       it != trackers.end(); ++it) {
+    if (_trackers.find(*it) != _trackers.end()) {
+      continue;
+    }
+
+    trackerObserver = new SessionTrackerClientObserver(this);
+    TrackerClientInterface *tracker = new TrackerClient((*it), trackerObserver);
+    trackerObserver->setTrackerClient(tracker);
+    if (tracker->Init() && tracker->Connect()) {
+      _trackers[(*it)] = tracker;
+    }
+  }
+
+  (void) _observer;
+  return handle;
+}
+
+void Session::addPeer(const std::string &id, PeerInterface *peer) {
+  _peers[id] = peer;
+}
+
+std::map<std::string, SessionHandleInterface *> &Session::getHandles() {
+  return _handles;
+}
+
+std::map<std::string, PeerInterface *> &Session::getPeers() {
+  return _peers;
 }
 
 }  // namespace peeracle

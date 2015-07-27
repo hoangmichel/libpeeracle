@@ -20,29 +20,16 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_MEDIA_MP3MEDIA_H_
-#define PEERACLE_MEDIA_MP3MEDIA_H_
+#ifndef SAMPLES_VLC_PLUGIN_VLCSESSIONHANDLEOBSERVER_H_
+#define SAMPLES_VLC_PLUGIN_VLCSESSIONHANDLEOBSERVER_H_
 
-#include "MediaInterface.h"
+#include "peeracle/Session/SessionHandleObserver.h"
 
-namespace peeracle {
-
-namespace Media {
-
-class MP3Media
-  : public MediaInterface {
+class VLCSessionHandleObserver
+  : public peeracle::SessionHandleObserver {
  public:
-  void getInitSegment(unsigned char *buffer, std::streamsize length);
-  void getMediaSegment(std::streampos timecode, unsigned char *buffer,
-                       std::streamsize length);
-
- protected:
-  virtual ~MP3Media() {}
+  VLCSessionHandleObserver();
+  ~VLCSessionHandleObserver();
 };
 
-}  // namespace Media
-
-}  // namespace peeracle
-
-
-#endif  // PEERACLE_MEDIA_MP3MEDIA_H_
+#endif  // SAMPLES_VLC_PLUGIN_VLCSESSIONHANDLEOBSERVER_H_

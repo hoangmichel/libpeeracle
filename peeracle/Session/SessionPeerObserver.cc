@@ -20,42 +20,39 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEER_H_
-#define PEERACLE_PEER_PEER_H_
-
 #include <string>
-#include "peeracle/Peer/PeerInterface.h"
-#include "peeracle/Tracker/Client/TrackerClientInterface.h"
+
+#include "peeracle/Session/SessionPeerObserver.h"
 
 namespace peeracle {
 
-class Peer
-  : public PeerInterface {
- public:
-  explicit Peer(const std::string &id, TrackerClientInterface *tracker,
-                PeerInterface::Observer *observer);
-  ~Peer();
+SessionPeerObserver::SessionPeerObserver(SessionInterface *session) :
+  _peer(NULL), _session(session) {
+  (void) _session;
+}
 
-  void CreateOffer(PeerInterface::CreateSDPObserver *createSDPObserver);
-  void CreateAnswer(const std::string &sdp,
-                    PeerInterface::CreateSDPObserver *createSDPObserver);
-  void SetAnswer(const std::string &sdp,
-                 PeerInterface::SetSDPObserver *setSDPObserver);
-  void AddICECandidate(const std::string &sdpMid,
-                       int sdpMLineIndex,
-                       const std::string &candidate);
+SessionPeerObserver::~SessionPeerObserver() {
+}
 
-  const std::string &getId() const;
+void SessionPeerObserver::onIceCandidate(const std::string &sdpMid,
+                                         int sdpMLineIndex,
+                                         const std::string &candidate) {
+}
 
- private:
-  class PeerImpl;
-  PeerImpl *_peer;
+void SessionPeerObserver::onSignalingChange(int state) {
+}
 
-  const std::string _id;
-  TrackerClientInterface *_tracker;
-  PeerInterface::Observer *_observer;
-};
+void SessionPeerObserver::onStateChange(int state) {
+}
+
+void SessionPeerObserver::onIceConnectionChange(int state) {
+}
+
+void SessionPeerObserver::onIceGatheringChange(int state) {
+}
+
+void SessionPeerObserver::setPeer(PeerInterface *peer) {
+  _peer = peer;
+}
 
 }  // namespace peeracle
-
-#endif  // PEERACLE_PEER_PEER_H_

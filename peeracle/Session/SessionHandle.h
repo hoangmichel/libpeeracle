@@ -20,42 +20,30 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEER_H_
-#define PEERACLE_PEER_PEER_H_
+#ifndef PEERACLE_SESSION_SESSIONHANDLE_H_
+#define PEERACLE_SESSION_SESSIONHANDLE_H_
 
-#include <string>
 #include "peeracle/Peer/PeerInterface.h"
-#include "peeracle/Tracker/Client/TrackerClientInterface.h"
+#include "peeracle/Metadata/MetadataInterface.h"
+#include "peeracle/Session/SessionHandleInterface.h"
+#include "SessionHandleObserver.h"
 
 namespace peeracle {
 
-class Peer
-  : public PeerInterface {
+class SessionHandle
+  : public SessionHandleInterface {
  public:
-  explicit Peer(const std::string &id, TrackerClientInterface *tracker,
-                PeerInterface::Observer *observer);
-  ~Peer();
+  SessionHandle(MetadataInterface *metadata, SessionHandleObserver *observer);
+  ~SessionHandle();
 
-  void CreateOffer(PeerInterface::CreateSDPObserver *createSDPObserver);
-  void CreateAnswer(const std::string &sdp,
-                    PeerInterface::CreateSDPObserver *createSDPObserver);
-  void SetAnswer(const std::string &sdp,
-                 PeerInterface::SetSDPObserver *setSDPObserver);
-  void AddICECandidate(const std::string &sdpMid,
-                       int sdpMLineIndex,
-                       const std::string &candidate);
-
-  const std::string &getId() const;
+  MetadataInterface *getMetadata() const;
+  void onPeer(PeerInterface *peer, uint32_t got, bool poke);
 
  private:
-  class PeerImpl;
-  PeerImpl *_peer;
-
-  const std::string _id;
-  TrackerClientInterface *_tracker;
-  PeerInterface::Observer *_observer;
+  SessionHandleObserver *_observer;
+  MetadataInterface *_metadata;
 };
 
 }  // namespace peeracle
 
-#endif  // PEERACLE_PEER_PEER_H_
+#endif  // PEERACLE_SESSION_SESSIONHANDLE_H_

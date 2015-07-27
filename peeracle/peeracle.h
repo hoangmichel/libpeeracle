@@ -32,9 +32,9 @@ bool update();
 bool cleanup();
 
 #ifdef BUILD_LIBPEERACLE
-webrtc::PeerConnectionFactoryInterface *getPeerConnectionFactory();
 rtc::Thread *getSignalingThread();
 rtc::Thread *getWorkerThread();
+webrtc::PeerConnectionFactoryInterface *getPeerConnectionFactory();
 #endif
 
 }  // namespace peeracle

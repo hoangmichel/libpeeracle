@@ -34,14 +34,19 @@
             'USE_LIBWEBSOCKETS',
           ],
           'dependencies': [
+            '<(webrtc_depot_dir)/third_party/boringssl/boringssl.gyp:boringssl',
             '<(DEPTH)/third_party/libwebsockets/libwebsockets.gyp:*',
+            '../Message/TrackerMessage.gyp:peeracle_tracker_message',
           ],
         }],
       ],
       'sources': [
         'TrackerClient.cc',
         'TrackerClient.h',
+        'TrackerClientImpl.cc',
+        'TrackerClientImpl.h',
         'TrackerClientInterface.h',
+        'TrackerClientObserver.h',
       ],
     },
   ],
@@ -54,6 +59,7 @@
           'dependencies': [
             'peeracle_tracker_client',
             '<(DEPTH)/test/test.gyp:peeracle_tests_utils',
+            '<(webrtc_depot_dir)/third_party/boringssl/boringssl.gyp:boringssl',
             '<(DEPTH)/third_party/libwebsockets/libwebsockets.gyp:*',
           ],
           'sources': [

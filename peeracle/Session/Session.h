@@ -23,27 +23,37 @@
 #ifndef PEERACLE_SESSION_SESSION_H_
 #define PEERACLE_SESSION_SESSION_H_
 
-#include "third_party/webrtc/webrtc/base/thread.h"
-#include "third_party/webrtc/talk/app/webrtc/peerconnectioninterface.h"
+#include <map>
+#include <string>
+
+#include "peeracle/Peer/PeerInterface.h"
 #include "peeracle/Session/SessionInterface.h"
+#include "peeracle/Session/SessionHandleInterface.h"
+#include "peeracle/Session/SessionObserver.h"
+#include "peeracle/Tracker/Client/TrackerClientInterface.h"
 
 namespace peeracle {
 
 class Session
   : public SessionInterface {
  public:
-  Session();
+  explicit Session(SessionObserver *observer);
+  ~Session();
 
-  bool Update();
+  bool update();
+  SessionHandleInterface *addMetadata(MetadataInterface *metadata,
+                                      SessionHandleObserver *observer);
 
-  void *getSignalingThread();
-  void *getWorkerThread();
+  std::map<std::string, PeerInterface *> &getPeers();
+  std::map<std::string, SessionHandleInterface *> &getHandles();
+
  private:
-  const rtc::scoped_ptr<rtc::Thread> _signalingThread;
-  const rtc::scoped_ptr<rtc::Thread> _workerThread;
-  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _pcfi;
- protected:
-  virtual ~Session() {}
+  SessionObserver *_observer;
+  std::map<std::string, PeerInterface *> _peers;
+  std::map<std::string, SessionHandleInterface *> _handles;
+  std::map<std::string, TrackerClientInterface *> _trackers;
+ public:
+  virtual void addPeer(const std::string &id, PeerInterface *peer);
 };
 
 }  // namespace peeracle

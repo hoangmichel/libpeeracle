@@ -35,15 +35,8 @@
 namespace peeracle {
 
 /**
- * \addtogroup Hash
- * @{
- * @namespace peeracle::Hash
- * @brief Hash namespace
- */
-namespace Hash {
-
-/**
  * Hash module interface.
+ * \addtogroup Hash
  */
 class HashInterface {
  public:
@@ -59,6 +52,8 @@ class HashInterface {
    * @param length the number of bytes to hash inside the buffer.
    */
   virtual void update(DataStreamInterface *dataStream) = 0;
+
+  virtual void update(const uint8_t *buffer, size_t length) = 0;
 
   /**
    * Execute the hash operation from the bytes provided by the #update calls,
@@ -78,11 +73,6 @@ class HashInterface {
  protected:
   virtual ~HashInterface() {}
 };
-
-/**
- * @}
- */
-}  // namespace Hash
 
 /**
  * @}

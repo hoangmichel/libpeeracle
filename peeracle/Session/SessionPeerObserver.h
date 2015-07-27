@@ -20,29 +20,34 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_MEDIA_MP4MEDIA_H_
-#define PEERACLE_MEDIA_MP4MEDIA_H_
+#ifndef PEERACLE_SESSION_SESSIONPEEROBSERVER_H_
+#define PEERACLE_SESSION_SESSIONPEEROBSERVER_H_
 
-#include "MediaInterface.h"
+#include <string>
+
+#include "peeracle/Peer/PeerInterface.h"
+#include "peeracle/Session/SessionInterface.h"
 
 namespace peeracle {
 
-namespace Media {
-
-class MP4Media
-  : public MediaInterface {
+class SessionPeerObserver
+  : public PeerInterface::Observer {
  public:
-  void getInitSegment(unsigned char *buffer, std::streamsize length);
-  void getMediaSegment(std::streampos timecode, unsigned char *buffer,
-                       std::streamsize length);
+  explicit SessionPeerObserver(SessionInterface *session);
+  ~SessionPeerObserver();
+  void onIceCandidate(const std::string &sdpMid, int sdpMLineIndex,
+                      const std::string &candidate);
+  void onSignalingChange(int state);
+  void onStateChange(int state);
+  void onIceConnectionChange(int state);
+  void onIceGatheringChange(int state);
+  void setPeer(PeerInterface *peer);
 
- protected:
-  virtual ~MP4Media() {}
+ private:
+  PeerInterface *_peer;
+  SessionInterface *_session;
 };
-
-}  // namespace Media
 
 }  // namespace peeracle
 
-
-#endif  // PEERACLE_MEDIA_MP4MEDIA_H_
+#endif  // PEERACLE_SESSION_SESSIONPEEROBSERVER_H_

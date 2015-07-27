@@ -20,34 +20,36 @@
  * SOFTWARE.
  */
 
-#ifndef SAMPLES_VLCPLUGIN_PEERACLEMANAGER_H_
-#define SAMPLES_VLCPLUGIN_PEERACLEMANAGER_H_
+#ifndef SAMPLES_VLC_PLUGIN_PEERACLEMANAGER_H_
+#define SAMPLES_VLC_PLUGIN_PEERACLEMANAGER_H_
 
 #include "peeracle/DataStream/DataStreamInterface.h"
 #include "peeracle/Metadata/Metadata.h"
+#include "peeracle/Session/SessionInterface.h"
+#include "peeracle/Session/SessionObserver.h"
 #include "samples/vlc-plugin/PeeracleManagerInterface.h"
 #include "samples/vlc-plugin/plugin.h"
+#include "PeeracleStreamInterface.h"
 
 class PeeracleManager : public PeeracleManagerInterface {
  public:
   explicit PeeracleManager(demux_t *demux);
   ~PeeracleManager();
 
-  enum Status {
-    STATUS_BUFFERING,
-    STATUS_DEMUXED,
-    STATUS_EOF
-  };
-
   bool Init();
   int Control(int i_query, va_list args);
   int Demux();
 
  private:
-  bool _initiated;
+  bool _initialized;
   demux_t *_vlc;
+
+  PeeracleStreamInterface *_stream;
   peeracle::MetadataInterface *_metadata;
   peeracle::DataStreamInterface *_metadataDataStream;
+  peeracle::SessionInterface *_session;
+  peeracle::SessionObserver *_sessionObserver;
+  peeracle::SessionHandleObserver *_handleObserver;
 };
 
-#endif  // SAMPLES_VLCPLUGIN_PEERACLEMANAGER_H_
+#endif  // SAMPLES_VLC_PLUGIN_PEERACLEMANAGER_H_

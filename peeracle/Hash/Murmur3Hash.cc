@@ -20,12 +20,11 @@
  * SOFTWARE.
  */
 
+#include <iostream>
 #include "peeracle/Hash/Murmur3Hash.h"
-#include "third_party/murmur3/murmur3.h"
+#include "third_party/murmur3/MurmurHash3.h"
 
 namespace peeracle {
-
-namespace Hash {
 
 Murmur3Hash::Murmur3Hash() {
   DataStreamInit init;
@@ -48,13 +47,27 @@ void Murmur3Hash::update(DataStreamInterface *dataStream) {
   delete buffer;
 }
 
+void Murmur3Hash::update(const uint8_t *buffer, size_t length) {
+  this->_dataStream->write(reinterpret_cast<const char *>(buffer), length);
+}
+
 void Murmur3Hash::final(uint8_t *result) {
   const std::streamsize length = this->_dataStream->length();
   char *buffer = new char[length];
+  uint8_t output[16];
 
   this->_dataStream->seek(0);
   this->_dataStream->read(buffer, length);
-  MurmurHash3_x64_128(buffer, static_cast<int>(length), 0x5052434C, result);
+
+  MurmurHash3_x86_128(buffer, static_cast<int>(length), 0x5052434C, output);
+
+  for (int i = 0; i < 16; i += 4) {
+    result[i + 0] = output[i + 3];
+    result[i + 1] = output[i + 2];
+    result[i + 2] = output[i + 1];
+    result[i + 3] = output[i + 0];
+  }
+
   delete buffer;
 }
 
@@ -63,6 +76,12 @@ void Murmur3Hash::checksum(DataStreamInterface *dataStream, uint8_t *result) {
   this->final(result);
 }
 
-}  // namespace Hash
+void Murmur3Hash::serialize(uint8_t *in, DataStreamInterface *out) {
+  out->write(reinterpret_cast<char*>(in), 16);
+}
+
+void Murmur3Hash::unserialize(DataStreamInterface *in, uint8_t *out) {
+  in->read(reinterpret_cast<char *>(out), 16);
+}
 
 }  // namespace peeracle

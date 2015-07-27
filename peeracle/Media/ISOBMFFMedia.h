@@ -20,36 +20,32 @@
  * SOFTWARE.
  */
 
-#include "third_party/googletest/gtest/include/gtest/gtest.h"
-#include "peeracle/Media/MP4Media.h"
+#ifndef PEERACLE_MEDIA_ISOBMFFMEDIA_H_
+#define PEERACLE_MEDIA_ISOBMFFMEDIA_H_
+
+#include <stdint.h>
+#include <vector>
+
+#include "peeracle/Media/MediaInterface.h"
 
 namespace peeracle {
 
-namespace Media {
+class ISOBMFFMedia
+  : public MediaInterface {
+ public:
+  ISOBMFFMedia();
+  ~ISOBMFFMedia();
 
-class MP4MediaTest : public testing::Test {
- protected:
-  MP4MediaTest() : media_(NULL) {
-  }
+  bool Load(DataStreamInterface *dataStream);
+  void getInitSegment(DataStreamInterface *out);
+  void getMediaSegment(std::streampos timecode, DataStreamInterface *out);
+  const std::vector<uint32_t> &getTimecodes() const;
 
-  virtual void SetUp() {
-    media_ = new MP4Media();
-  }
-
-  virtual void TearDown() {
-  }
-
-  MP4Media *media_;
+ private:
+  std::vector<uint32_t> _timecodes;
 };
 
-TEST(MP4MediaTest, getInitSegment) {
-  EXPECT_FALSE(true);
-}
-
-TEST(MP4MediaTest, getMediaSegment) {
-  EXPECT_FALSE(true);
-}
-
-}  // namespace Media
-
 }  // namespace peeracle
+
+
+#endif  // PEERACLE_MEDIA_ISOBMFFMEDIA_H_

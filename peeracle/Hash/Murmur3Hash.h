@@ -35,15 +35,8 @@
 namespace peeracle {
 
 /**
- * \addtogroup Hash
- * @{
- * @namespace peeracle::Hash
- * @brief Hash namespace
- */
-namespace Hash {
-
-/**
  * Murmur3Hash hash algorithm module.
+ * \addtogroup Hash
  */
 class Murmur3Hash
   : public HashInterface {
@@ -56,17 +49,16 @@ class Murmur3Hash
    */
   void init();
   void update(DataStreamInterface *dataStream);
+  void update(const uint8_t *buffer, size_t length);
   void final(uint8_t *result);
   void checksum(DataStreamInterface *dataStream, uint8_t *result);
+
+  static void serialize(uint8_t *in, DataStreamInterface *out);
+  static void unserialize(DataStreamInterface *in, uint8_t *out);
 
  private:
   MemoryDataStream *_dataStream;
 };
-
-/**
- * @}
- */
-}  // namespace Hash
 
 /**
  * @}

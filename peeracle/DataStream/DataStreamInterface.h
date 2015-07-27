@@ -38,8 +38,8 @@ namespace peeracle {
 struct DataStreamInit {
   DataStreamInit()
     : bigEndian(true),
-      buffer(NULL),
       path(""),
+      buffer(NULL),
       bufferLength(0) {
   }
 
@@ -333,7 +333,6 @@ class DataStreamInterface {
    */
   virtual std::streamsize write(const std::string &value) = 0;
 
- protected:
   virtual ~DataStreamInterface() { }
 };
 

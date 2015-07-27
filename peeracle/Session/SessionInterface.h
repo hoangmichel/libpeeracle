@@ -23,10 +23,25 @@
 #ifndef PEERACLE_SESSION_SESSIONINTERFACE_H_
 #define PEERACLE_SESSION_SESSIONINTERFACE_H_
 
+#include <map>
+#include <string>
+#include "peeracle/Metadata/MetadataInterface.h"
+#include "peeracle/Session/SessionHandleInterface.h"
+#include "peeracle/Session/SessionHandleObserver.h"
+
 namespace peeracle {
 
 class SessionInterface {
  public:
+  virtual bool update() = 0;
+  virtual SessionHandleInterface *addMetadata(MetadataInterface *metadata,
+    SessionHandleObserver *observer) = 0;
+
+  virtual void addPeer(const std::string &id, PeerInterface *peer) = 0;
+
+  virtual std::map<std::string, PeerInterface *> &getPeers() = 0;
+  virtual std::map<std::string, SessionHandleInterface *> &getHandles() = 0;
+
   virtual ~SessionInterface() {}
 };
 

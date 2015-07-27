@@ -20,42 +20,34 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_PEER_PEER_H_
-#define PEERACLE_PEER_PEER_H_
+#ifndef PEERACLE_METADATA_METADATAMEDIASEGMENT_H_
+#define PEERACLE_METADATA_METADATAMEDIASEGMENT_H_
 
 #include <string>
-#include "peeracle/Peer/PeerInterface.h"
-#include "peeracle/Tracker/Client/TrackerClientInterface.h"
+#include <vector>
+#include "peeracle/Metadata/MetadataMediaSegmentInterface.h"
+#include "peeracle/Hash/HashInterface.h"
 
 namespace peeracle {
 
-class Peer
-  : public PeerInterface {
+class MetadataMediaSegment
+  : public MetadataMediaSegmentInterface {
  public:
-  explicit Peer(const std::string &id, TrackerClientInterface *tracker,
-                PeerInterface::Observer *observer);
-  ~Peer();
+  MetadataMediaSegment();
 
-  void CreateOffer(PeerInterface::CreateSDPObserver *createSDPObserver);
-  void CreateAnswer(const std::string &sdp,
-                    PeerInterface::CreateSDPObserver *createSDPObserver);
-  void SetAnswer(const std::string &sdp,
-                 PeerInterface::SetSDPObserver *setSDPObserver);
-  void AddICECandidate(const std::string &sdpMid,
-                       int sdpMLineIndex,
-                       const std::string &candidate);
+  uint32_t getTimecode();
+  uint32_t getLength();
+  const std::vector<uint8_t *> &getChunks();
 
-  const std::string &getId() const;
+  bool unserialize(DataStreamInterface *dataStream,
+                   const std::string &hashName, HashInterface *hash);
 
  private:
-  class PeerImpl;
-  PeerImpl *_peer;
-
-  const std::string _id;
-  TrackerClientInterface *_tracker;
-  PeerInterface::Observer *_observer;
+  uint32_t _timecode;
+  uint32_t _length;
+  std::vector<uint8_t *> _chunks;
 };
 
 }  // namespace peeracle
 
-#endif  // PEERACLE_PEER_PEER_H_
+#endif  // PEERACLE_METADATA_METADATAMEDIASEGMENT_H_

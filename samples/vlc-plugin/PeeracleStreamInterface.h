@@ -20,54 +20,22 @@
  * SOFTWARE.
  */
 
-#ifndef PEERACLE_HASH_CRC32HASH_H_
-#define PEERACLE_HASH_CRC32HASH_H_
+#ifndef SAMPLES_VLC_PLUGIN_PEERACLESTREAMINTERFACE_H_
+#define SAMPLES_VLC_PLUGIN_PEERACLESTREAMINTERFACE_H_
 
-#include "HashInterface.h"
+#include "samples/vlc-plugin/plugin.h"
 
-/**
- * \addtogroup peeracle
- * @{
- * @namespace peeracle
- * @brief peeracle namespace
- */
-namespace peeracle {
-
-/**
- * \addtogroup Hash
- * @{
- * @namespace peeracle::Hash
- * @brief Hash namespace
- */
-namespace Hash {
-
-/**
- * Crc32 hash algorithm module.
- */
-class Crc32Hash
-  : public HashInterface {
+class PeeracleStreamInterface {
  public:
-  Crc32Hash();
-  virtual ~Crc32Hash();
+  virtual bool init() = 0;
+  virtual PeeracleManagerInterface::Status Demux(mtime_t deadline) = 0;
+  virtual int64_t GetDuration() = 0;
+  virtual int GetGroup() = 0;
+  virtual bool IsLive() = 0;
+  virtual bool IsSeekable() = 0;
+  virtual bool SetPosition(int64_t time) = 0;
 
-  /**
-   * Initialize the Crc32 hash algorithm module.
-   */
-  void init();
-  void update(DataStreamInterface *dataStream);
-  void final(uint8_t *result);
-  void checksum(DataStreamInterface *dataStream, uint8_t *result);
+  virtual ~PeeracleStreamInterface() { }
 };
 
-/**
- * @}
- */
-}  // namespace Hash
-
-/**
- * @}
- */
-}  // namespace peeracle
-
-
-#endif  // PEERACLE_HASH_CRC32HASH_H_
+#endif  // SAMPLES_VLC_PLUGIN_PEERACLESTREAMINTERFACE_H_

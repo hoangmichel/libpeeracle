@@ -33,12 +33,13 @@ class Metadata : public MetadataInterface {
  public:
   Metadata();
 
+  const std::string &getId();
   uint32_t getMagic();
   uint32_t getVersion();
   const std::string &getHashAlgorithm();
   uint32_t getTimecodeScale();
   double getDuration();
-  std::vector<std::string> &getTrackers();
+  std::vector<std::string> &getTrackerUrls();
   std::vector<MetadataStreamInterface *> &getStreams();
 
   void setHashAlgorithm(const std::string &hashAlgorithm);
@@ -50,6 +51,7 @@ class Metadata : public MetadataInterface {
   bool unserialize(DataStreamInterface *dataStream);
 
  private:
+  std::string _id;
   uint32_t _magic;
   uint32_t _version;
   std::string _hashAlgorithm;

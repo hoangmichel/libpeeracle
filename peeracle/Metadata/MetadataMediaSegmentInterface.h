@@ -20,30 +20,32 @@
  * SOFTWARE.
  */
 
-#include "peeracle/Hash/Crc32Hash.h"
+#ifndef PEERACLE_METADATA_METADATAMEDIASEGMENTINTERFACE_H_
+#define PEERACLE_METADATA_METADATAMEDIASEGMENTINTERFACE_H_
+
+#include <stdint.h>
+#include <ios>
+#include <string>
+#include <vector>
+
+#include "peeracle/DataStream/DataStreamInterface.h"
+#include "peeracle/Hash/HashInterface.h"
 
 namespace peeracle {
 
-namespace Hash {
+class MetadataMediaSegmentInterface {
+ public:
+  virtual uint32_t getTimecode() = 0;
+  virtual uint32_t getLength() = 0;
+  virtual const std::vector<uint8_t *> &getChunks() = 0;
 
-Crc32Hash::Crc32Hash() {
-}
+  virtual bool unserialize(DataStreamInterface *dataStream,
+                           const std::string &hashName,
+                           HashInterface *hash) = 0;
 
-Crc32Hash::~Crc32Hash() {
-}
-
-void Crc32Hash::init() {
-}
-
-void Crc32Hash::update(DataStreamInterface *dataStream) {
-}
-
-void Crc32Hash::final(uint8_t *result) {
-}
-
-void Crc32Hash::checksum(DataStreamInterface *dataStream, uint8_t *result) {
-}
-
-}  // namespace Hash
+  virtual ~MetadataMediaSegmentInterface() {}
+};
 
 }  // namespace peeracle
+
+#endif  // PEERACLE_METADATA_METADATAMEDIASEGMENTINTERFACE_H_

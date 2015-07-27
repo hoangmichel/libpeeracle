@@ -20,36 +20,29 @@
  * SOFTWARE.
  */
 
-#include "third_party/googletest/gtest/include/gtest/gtest.h"
-#include "peeracle/Media/MP3Media.h"
+#include "peeracle/Media/ISOBMFFMedia.h"
 
 namespace peeracle {
 
-namespace Media {
-
-class MP3MediaTest : public testing::Test {
- protected:
-  MP3MediaTest() : media_(NULL) {
-  }
-
-  virtual void SetUp() {
-    media_ = new MP3Media();
-  }
-
-  virtual void TearDown() {
-  }
-
-  MP3Media *media_;
-};
-
-TEST(MP3MediaTest, getInitSegment) {
-  EXPECT_FALSE(true);
+ISOBMFFMedia::ISOBMFFMedia() {
 }
 
-TEST(MP3MediaTest, getMediaSegment) {
-  EXPECT_FALSE(true);
+ISOBMFFMedia::~ISOBMFFMedia() {
 }
 
-}  // namespace Media
+bool ISOBMFFMedia::Load(DataStreamInterface *dataStream) {
+  return true;
+}
+
+void ISOBMFFMedia::getInitSegment(DataStreamInterface *out) {
+}
+
+void ISOBMFFMedia::getMediaSegment(std::streampos timecode,
+                                DataStreamInterface *out) {
+}
+
+const std::vector<uint32_t> &ISOBMFFMedia::getTimecodes() const {
+  return _timecodes;
+}
 
 }  // namespace peeracle
